@@ -384,30 +384,51 @@ with tab_cotizador:
                     story.append(Spacer(1, 15))
                     
                     story.append(Paragraph("Detalle del Pedido", style_h2))
-                    tabla_datos = [["Cantidad", "Detalle del Producto", "Precio Total (Lista)"]]
+                    
+                    # Estilo con interlineado adecuado para que los textos largos bajen de renglón sin pisarse
+                    style_celda_tabla = ParagraphStyle(
+                        'CeldaTablaItem',
+                        parent=styles['Normal'],
+                        fontName='Helvetica',
+                        fontSize=9.5,
+                        leading=12,
+                        textColor=colors.HexColor('#2D3748')
+                    )
+                    
+                    style_celda_header = ParagraphStyle(
+                        'CeldaHeaderTabla',
+                        parent=styles['Normal'],
+                        fontName='Helvetica-Bold',
+                        fontSize=10,
+                        leading=12,
+                        textColor=colors.whitesmoke
+                    )
+
+                    tabla_datos = [[
+                        Paragraph("<b>Cantidad</b>", style_celda_header),
+                        Paragraph("<b>Detalle del Producto</b>", style_celda_header),
+                        Paragraph("<b>Precio Total (Lista)</b>", style_celda_header)
+                    ]]
                     
                     for sub_item in st.session_state['carrito']:
                         tabla_datos.append([
-                            str(sub_item['Cantidad']),
-                            sub_item['Detalle Producto'],
-                            f"$ {sub_item['Precio Lista Total ($)']:,.0f}"
+                            Paragraph(str(sub_item['Cantidad']), style_celda_tabla),
+                            # 👇 Al envolverlo en Paragraph, ReportLab hace salto de línea automático
+                            Paragraph(str(sub_item['Detalle Producto']), style_celda_tabla),
+                            Paragraph(f"$ {sub_item['Precio Lista Total ($)']:,.0f}", style_celda_tabla)
                         ])
                     
-                    t_tabla = Table(tabla_datos, colWidths=[60, 340, 120])
+                    # Distribución de anchos: Cantidad (50pt), Detalle amplio (350pt), Precio (120pt)
+                    t_tabla = Table(tabla_datos, colWidths=[50, 350, 120])
                     t_tabla.setStyle(TableStyle([
                         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#1A365D')),
-                        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                        ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                        ('ALIGN', (0, 0), (0, -1), 'CENTER'),
                         ('ALIGN', (2, 0), (2, -1), 'RIGHT'),
-                        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                        ('FONTSIZE', (0, 0), (-1, 0), 11),
-                        ('BOTTOMPADDING', (0, 0), (-1, 0), 8),
+                        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'), # Alineación vertical al centro
                         ('BACKGROUND', (0, 1), (-1, -1), colors.HexColor('#F7FAFC')),
                         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#E2E8F0')),
-                        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-                        ('FONTSIZE', (0, 1), (-1, -1), 10),
-                        ('TOPPADDING', (0, 1), (-1, -1), 6),
-                        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+                        ('TOPPADDING', (0, 0), (-1, -1), 6),
+                        ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                     ]))
                     story.append(t_tabla)
                     story.append(Spacer(1, 20))
